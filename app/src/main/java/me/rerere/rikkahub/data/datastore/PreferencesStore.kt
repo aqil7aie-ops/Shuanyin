@@ -302,6 +302,9 @@ class SettingsStore(
         val SEARCH_AGENT_OVERRIDE_ORIGINAL_TOOLS = booleanPreferencesKey("search_agent_override_original_tools")
         val SEARCH_AGENT_COMPACT_MODE = booleanPreferencesKey("search_agent_compact_mode")
 
+        // Connectors
+        val GITHUB_PAT = stringPreferencesKey("github_pat")
+
         // MCP
         val MCP_SERVERS = stringPreferencesKey("mcp_servers")
         val MCP_PENDING_AUTHORIZATIONS = stringPreferencesKey("mcp_pending_authorizations")
@@ -597,6 +600,7 @@ class SettingsStore(
                 searchServiceSelected = preferences[SEARCH_SELECTED] ?: 0,
                 searchAgentOverrideOriginalTools = preferences[SEARCH_AGENT_OVERRIDE_ORIGINAL_TOOLS] == true,
                 searchAgentCompactMode = preferences[SEARCH_AGENT_COMPACT_MODE] == true,
+                githubPat = preferences[GITHUB_PAT] ?: "",
                 mcpToolCallTimeoutSeconds = (preferences[MCP_TOOL_CALL_TIMEOUT_SECONDS] ?: 60).coerceAtLeast(1),
                 httpRetryMaxRetries = (
                     preferences[HTTP_RETRY_MAX_RETRIES]
@@ -1047,6 +1051,8 @@ class SettingsStore(
                 preferences[SEARCH_AGENT_OVERRIDE_ORIGINAL_TOOLS] = finalSettingsToSave.searchAgentOverrideOriginalTools
                 preferences[SEARCH_AGENT_COMPACT_MODE] = finalSettingsToSave.searchAgentCompactMode
 
+                preferences[GITHUB_PAT] = finalSettingsToSave.githubPat
+
                 preferences[MCP_SERVERS] = JsonInstant.encodeToString(finalSettingsToSave.mcpServers)
                 preferences[MCP_TOOL_CALL_TIMEOUT_SECONDS] = finalSettingsToSave.mcpToolCallTimeoutSeconds.coerceAtLeast(1)
                 preferences[HTTP_RETRY_MAX_RETRIES] = finalSettingsToSave.httpRetryMaxRetries.coerceIn(0, 10)
@@ -1328,6 +1334,9 @@ data class Settings(
     val searchServiceSelected: Int = 0,
     val searchAgentOverrideOriginalTools: Boolean = false,
     val searchAgentCompactMode: Boolean = false,
+
+    // Connectors
+    val githubPat: String = "",
     val mcpToolCallTimeoutSeconds: Int = 60,
     @OptIn(ExperimentalSerializationApi::class)
     @JsonNames("http429MaxRetries")
@@ -1598,6 +1607,7 @@ enum class AppLanguage(val languageTag: String?) {
     ENGLISH("en"),
     SIMPLIFIED_CHINESE("zh-CN"),
     TRADITIONAL_CHINESE("zh-TW"),
+    ARABIC("ar"),
 }
 
 /**

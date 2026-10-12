@@ -91,7 +91,7 @@ android {
     ndkVersion = "28.2.13676358"
 
     defaultConfig {
-        applicationId = "lastchat.rikkafork.cocolal"
+        applicationId = "com.aqeel.shuanyin"
         minSdk = 31
         targetSdk = 36
         // 固定版本号：需高于历史时间戳方案水位（约 343 万），保证可覆盖安装旧包。

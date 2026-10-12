@@ -204,6 +204,7 @@ fun SettingDisplayPage(vm: SettingVM = koinViewModel()) {
                                         AppLanguage.ENGLISH -> stringResource(R.string.setting_language_english)
                                         AppLanguage.SIMPLIFIED_CHINESE -> stringResource(R.string.setting_language_simplified_chinese)
                                         AppLanguage.TRADITIONAL_CHINESE -> stringResource(R.string.setting_language_traditional_chinese)
+                                        AppLanguage.ARABIC -> stringResource(R.string.setting_language_arabic)
                                     }
                                 },
                                 modifier = Modifier.widthIn(min = 64.dp, max = 140.dp)

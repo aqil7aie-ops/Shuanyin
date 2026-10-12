@@ -78,6 +78,10 @@ sealed class LocalToolOption {
     @Serializable
     @SerialName("image_generation")
     data object ImageGeneration : LocalToolOption()
+
+    @Serializable
+    @SerialName("github_connector")
+    data object GithubConnector : LocalToolOption()
 }
 
 class LocalTools(
@@ -576,6 +580,12 @@ class LocalTools(
         }
         if (options.contains(LocalToolOption.ImageGeneration)) {
             tools.add(imageGenerationTool)
+        }
+        if (options.contains(LocalToolOption.GithubConnector)) {
+            val githubPat = settingsStore.settingsFlow.value.githubPat.trim()
+            if (githubPat.isNotBlank()) {
+                tools.addAll(createGithubTools(githubPat))
+            }
         }
         return tools
     }

@@ -106,7 +106,7 @@
     <string name="request_log_source_model_name_generation">Model Name Generation</string>
     <string name="request_log_source_search_agent">Search Agent</string>
     <string name="request_log_source_other">Other</string>
-    <string name="app_name">FLIT</string>
+    <string name="app_name">Shuanyin</string>
     <string name="tile_web_server_label">FLIT Web</string>
     <string name="assistant_importer_import_failed">Import Failed</string>
     <string name="assistant_importer_import_tavern_json">Import Tavern Card (JSON)</string>
@@ -245,6 +245,11 @@
     <string name="assistant_page_local_tools_ask_user_desc">Allow assistant to ask you questions when uncertain</string>
     <string name="assistant_page_local_tools_image_generation_title">Image Generation</string>
     <string name="assistant_page_local_tools_image_generation_desc">Allow the assistant to generate images with the selected image model and save them to the in-app gallery.</string>
+    <string name="assistant_page_local_tools_github_connector_title">GitHub Connector</string>
+    <string name="assistant_page_local_tools_github_connector_desc">Let the assistant use GitHub: list repos, read files and manage issues. Needs a personal access token in Advanced settings.</string>
+    <string name="setting_page_connectors_title">Connectors</string>
+    <string name="setting_page_github_pat_title">GitHub Personal Access Token</string>
+    <string name="setting_page_github_pat_desc">Used by the GitHub connector. Create one at github.com/settings/tokens (classic or fine-grained with repo scope).</string>
     <string name="assistant_page_local_tools_get_time_title">Get Current Time</string>
     <string name="assistant_page_local_tools_get_time_desc">Allow assistant to call a tool to get the current date, time and weekday</string>
     <string name="assistant_page_local_tools_mcp_manager_title">MCP Manager</string>
@@ -822,6 +827,7 @@
     <string name="setting_language_english">English</string>
     <string name="setting_language_simplified_chinese">简体中文</string>
     <string name="setting_language_traditional_chinese">繁體中文</string>
+    <string name="setting_language_arabic">العربية</string>
     <string name="setting_display_page_show_fullscreen_input_button_title">Show fullscreen input button</string>
     <string name="setting_display_page_show_fullscreen_input_button_desc">Show the fullscreen input button when the input bar is expanded</string>
     <string name="setting_display_page_show_context_stacks_desc">Show context sources (modes, memories, lorebooks) in message toolbar</string>

@@ -193,6 +193,11 @@
     <string name="assistant_page_local_tools_ask_user_title">询问用户</string>
     <string name="assistant_page_local_tools_image_generation_title">图片生成</string>
     <string name="assistant_page_local_tools_image_generation_desc">允许助手使用所选图片模型生成图片，并保存到应用内图库。</string>
+    <string name="assistant_page_local_tools_github_connector_title">GitHub 连接器</string>
+    <string name="assistant_page_local_tools_github_connector_desc">允许助手使用 GitHub：列出仓库、读取文件、管理 Issue。需在高级设置中填写个人访问令牌。</string>
+    <string name="setting_page_connectors_title">连接器</string>
+    <string name="setting_page_github_pat_title">GitHub 个人访问令牌</string>
+    <string name="setting_page_github_pat_desc">用于 GitHub 连接器。在 github.com/settings/tokens 创建（classic 或 fine-grained，需 repo 权限）。</string>
     <string name="assistant_page_local_tools_chat_search_desc">允许助手按关键词搜索过往的聊天记录。</string>
     <string name="assistant_page_local_tools_chat_search_title">聊天搜索</string>
   <string name="assistant_page_local_tools_device_control_desc">允许助手与设备交互（发送通知、读取通知、启动应用、设置闹钟、设置提醒）。</string>
@@ -1498,6 +1503,7 @@
     <string name="setting_language_simplified_chinese">简体中文</string>
     <string name="setting_language_system">跟随系统</string>
     <string name="setting_language_traditional_chinese">繁體中文</string>
+    <string name="setting_language_arabic">阿拉伯语</string>
   <string name="setting_live_update_mode_compatibility">兼容</string>
   <string name="setting_live_update_mode_default">开启</string>
   <string name="setting_live_update_mode_off">关闭</string>

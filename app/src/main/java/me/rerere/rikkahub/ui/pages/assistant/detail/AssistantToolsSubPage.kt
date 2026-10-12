@@ -274,6 +274,25 @@ fun AssistantToolsSubPage(
                 }
             )
 
+            // GitHub Connector
+            SettingGroupItem(
+                title = stringResource(R.string.assistant_page_local_tools_github_connector_title),
+                subtitle = stringResource(R.string.assistant_page_local_tools_github_connector_desc),
+                trailing = {
+                    HapticSwitch(
+                        checked = assistant.localTools.contains(LocalToolOption.GithubConnector),
+                        onCheckedChange = { enabled ->
+                            val newLocalTools = if (enabled) {
+                                assistant.localTools + LocalToolOption.GithubConnector
+                            } else {
+                                assistant.localTools - LocalToolOption.GithubConnector
+                            }
+                            onUpdate(assistant.copy(localTools = newLocalTools))
+                        }
+                    )
+                }
+            )
+
             // Get Current Time
             SettingGroupItem(
                 title = stringResource(R.string.assistant_page_local_tools_get_time_title),
