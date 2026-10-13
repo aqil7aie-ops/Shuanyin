@@ -304,6 +304,8 @@ class SettingsStore(
 
         // Connectors
         val GITHUB_PAT = stringPreferencesKey("github_pat")
+        val CONNECTOR_LINK_SETTINGS = stringPreferencesKey("connector_link_settings")
+        val TERMUX_INTEGRATION_SETTINGS = stringPreferencesKey("termux_integration_settings")
 
         // MCP
         val MCP_SERVERS = stringPreferencesKey("mcp_servers")
@@ -601,6 +603,12 @@ class SettingsStore(
                 searchAgentOverrideOriginalTools = preferences[SEARCH_AGENT_OVERRIDE_ORIGINAL_TOOLS] == true,
                 searchAgentCompactMode = preferences[SEARCH_AGENT_COMPACT_MODE] == true,
                 githubPat = preferences[GITHUB_PAT] ?: "",
+                connectorLinkSettings = preferences[CONNECTOR_LINK_SETTINGS]?.let { raw ->
+                    runCatching { JsonInstant.decodeFromString<ConnectorLinkSettings>(raw) }.getOrNull()
+                } ?: ConnectorLinkSettings(),
+                termuxIntegrationSettings = preferences[TERMUX_INTEGRATION_SETTINGS]?.let { raw ->
+                    runCatching { JsonInstant.decodeFromString<TermuxIntegrationSettings>(raw) }.getOrNull()
+                }?.normalized() ?: TermuxIntegrationSettings(),
                 mcpToolCallTimeoutSeconds = (preferences[MCP_TOOL_CALL_TIMEOUT_SECONDS] ?: 60).coerceAtLeast(1),
                 httpRetryMaxRetries = (
                     preferences[HTTP_RETRY_MAX_RETRIES]
@@ -1052,6 +1060,8 @@ class SettingsStore(
                 preferences[SEARCH_AGENT_COMPACT_MODE] = finalSettingsToSave.searchAgentCompactMode
 
                 preferences[GITHUB_PAT] = finalSettingsToSave.githubPat
+                preferences[CONNECTOR_LINK_SETTINGS] = JsonInstant.encodeToString(finalSettingsToSave.connectorLinkSettings)
+                preferences[TERMUX_INTEGRATION_SETTINGS] = JsonInstant.encodeToString(finalSettingsToSave.termuxIntegrationSettings.normalized())
 
                 preferences[MCP_SERVERS] = JsonInstant.encodeToString(finalSettingsToSave.mcpServers)
                 preferences[MCP_TOOL_CALL_TIMEOUT_SECONDS] = finalSettingsToSave.mcpToolCallTimeoutSeconds.coerceAtLeast(1)
@@ -1287,6 +1297,29 @@ class SettingsStore(
 }
 
 @Serializable
+data class ConnectorLinkSettings(
+    val googleOAuthClientId: String = "",
+    val instagramAppId: String = "",
+    val facebookAppId: String = "",
+)
+
+@Serializable
+data class TermuxIntegrationSettings(
+    val enabled: Boolean = false,
+    val defaultCommandTimeoutSeconds: Int = 60,
+    val toolCallTimeoutMinutes: Int = 5,
+    val maxOutputLines: Int = 200,
+    val maxOutputBytes: Int = 32_768,
+) {
+    fun normalized(): TermuxIntegrationSettings = copy(
+        defaultCommandTimeoutSeconds = defaultCommandTimeoutSeconds.coerceIn(1, 3_600),
+        toolCallTimeoutMinutes = toolCallTimeoutMinutes.coerceIn(1, 60),
+        maxOutputLines = maxOutputLines.coerceIn(1, 5_000),
+        maxOutputBytes = maxOutputBytes.coerceIn(1, 1_000_000),
+    )
+}
+
+@Serializable
 data class Settings(
     @Transient
     val init: Boolean = false,
@@ -1337,6 +1370,8 @@ data class Settings(
 
     // Connectors
     val githubPat: String = "",
+    val connectorLinkSettings: ConnectorLinkSettings = ConnectorLinkSettings(),
+    val termuxIntegrationSettings: TermuxIntegrationSettings = TermuxIntegrationSettings(),
     val mcpToolCallTimeoutSeconds: Int = 60,
     @OptIn(ExperimentalSerializationApi::class)
     @JsonNames("http429MaxRetries")

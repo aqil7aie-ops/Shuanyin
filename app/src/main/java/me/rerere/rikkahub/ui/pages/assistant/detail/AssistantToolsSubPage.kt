@@ -362,6 +362,32 @@ fun AssistantToolsSubPage(
             )
         }
 
+        SettingsGroup(title = stringResource(R.string.v2_assistant_connectors_title)) {
+            listOf(
+                Triple(LocalToolOption.StorageConnector, R.string.v2_storage_tool_title, R.string.v2_storage_tool_description),
+                Triple(LocalToolOption.DriveConnector, R.string.v2_drive_tool_title, R.string.v2_drive_tool_description),
+                Triple(LocalToolOption.GmailConnector, R.string.v2_gmail_tool_title, R.string.v2_gmail_tool_description),
+                Triple(LocalToolOption.CalendarConnector, R.string.v2_calendar_tool_title, R.string.v2_calendar_tool_description),
+                Triple(LocalToolOption.InstagramConnector, R.string.v2_instagram_tool_title, R.string.v2_instagram_tool_description),
+                Triple(LocalToolOption.FacebookConnector, R.string.v2_facebook_tool_title, R.string.v2_facebook_tool_description),
+                Triple(LocalToolOption.TermuxConnector, R.string.v2_termux_tool_title, R.string.v2_termux_tool_description),
+            ).forEach { (option, titleRes, descriptionRes) ->
+                SettingGroupItem(
+                    title = stringResource(titleRes),
+                    subtitle = stringResource(descriptionRes),
+                    trailing = {
+                        HapticSwitch(
+                            checked = assistant.localTools.contains(option),
+                            onCheckedChange = { enabled ->
+                                val newLocalTools = if (enabled) assistant.localTools + option else assistant.localTools - option
+                                onUpdate(assistant.copy(localTools = newLocalTools))
+                            },
+                        )
+                    },
+                )
+            }
+        }
+
         if (showWorkspaceSheet) {
             me.rerere.rikkahub.ui.components.ai.WorkspaceSelectSheet(
                 selectedWorkspaceId = assistant.workspaceId,

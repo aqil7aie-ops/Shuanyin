@@ -76,6 +76,8 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.ContentCopy
 import me.rerere.rikkahub.R
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.data.model.Conversation
@@ -122,6 +124,8 @@ fun ColumnScope.ConversationList(
     onConsolidate: (Conversation) -> Unit = {},
     onCancelConsolidation: (Conversation) -> Unit = {},
     onPin: (Conversation) -> Unit = {},
+    onRename: (Conversation) -> Unit = {},
+    onCopyToAssistant: (Conversation) -> Unit = {},
     onExportConversationJson: (Conversation) -> Unit = {},
     onMoveToProject: (Conversation) -> Unit = {},
     showMoveToProjectOption: Boolean = false,
@@ -364,6 +368,8 @@ fun ColumnScope.ConversationList(
                             onConsolidate = onConsolidate,
                             onCancelConsolidation = onCancelConsolidation,
                             onPin = onPin,
+                            onRename = onRename,
+                            onCopyToAssistant = onCopyToAssistant,
                             onExportConversationJson = onExportConversationJson,
                             onMoveToProject = onMoveToProject,
                             showMoveToProjectOption = showMoveToProjectOption,
@@ -508,6 +514,8 @@ private fun ConversationItem(
     onConsolidate: (Conversation) -> Unit = {},
     onCancelConsolidation: (Conversation) -> Unit = {},
     onPin: (Conversation) -> Unit = {},
+    onRename: (Conversation) -> Unit = {},
+    onCopyToAssistant: (Conversation) -> Unit = {},
     onExportConversationJson: (Conversation) -> Unit = {},
     onMoveToProject: (Conversation) -> Unit = {},
     showMoveToProjectOption: Boolean = false,
@@ -624,6 +632,24 @@ private fun ConversationItem(
                 shape = RoundedCornerShape(20.dp),
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.v2_conversation_rename)) },
+                    onClick = {
+                        onRename(conversation)
+                        showDropdownMenu = false
+                    },
+                    leadingIcon = { Icon(Icons.Rounded.Edit, null) },
+                )
+
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.v2_copy_to_assistant)) },
+                    onClick = {
+                        onCopyToAssistant(conversation)
+                        showDropdownMenu = false
+                    },
+                    leadingIcon = { Icon(Icons.Rounded.ContentCopy, null) },
+                )
+
                 DropdownMenuItem(
                     text = {
                         Text(

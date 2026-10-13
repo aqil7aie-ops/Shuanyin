@@ -203,9 +203,16 @@ fun SettingPage(vm: SettingVM = koinViewModel()) {
 
                     SettingGroupItem(
                         title = stringResource(R.string.setting_android_integration),
-                        icon = { Icon(Icons.Rounded.PhoneAndroid, null, modifier = Modifier.size(20.dp)) },
+                        icon = { Icon(Icons.Rounded.PhoneAndroid, null) },
                         contentPadding = mainSettingItemPadding,
                         onClick = { navController.navigate(Screen.SettingAndroidIntegration) }
+                    )
+
+                    SettingGroupItem(
+                        title = stringResource(R.string.v2_connectors_title),
+                        icon = { Icon(Icons.Rounded.Extension, null) },
+                        contentPadding = mainSettingItemPadding,
+                        onClick = { navController.navigate(Screen.Connectors) }
                     )
                 }
             }

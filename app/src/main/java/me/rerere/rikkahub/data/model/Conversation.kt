@@ -187,6 +187,21 @@ data class Conversation(
     }
 }
 
+fun Conversation.copyToAssistant(
+    targetAssistantId: Uuid,
+    newId: Uuid = Uuid.random(),
+    now: Instant = Instant.now(),
+): Conversation = copy(
+    id = newId,
+    assistantId = targetAssistantId,
+    rootId = newId,
+    branchNumber = null,
+    createAt = now,
+    updateAt = now,
+    isPinned = false,
+    isConsolidated = false,
+)
+
 /**
  * 继承创建分支时仍应属于当前会话的状态，避免不同分支入口各自复制字段后产生遗漏。
  */

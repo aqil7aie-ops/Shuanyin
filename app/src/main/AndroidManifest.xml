@@ -21,6 +21,7 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
   <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+  <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
 
   <uses-feature
     android:name="android.hardware.camera"
@@ -186,6 +187,10 @@
         android:exported="false" />
 
     <receiver
+        android:name=".data.ai.tools.TermuxCommandResultReceiver"
+        android:exported="false" />
+
+    <receiver
         android:name=".service.scheduledtask.ScheduledTaskRescheduleReceiver"
         android:exported="false">
       <intent-filter>
@@ -220,6 +225,7 @@
   </application>
 
   <queries>
+    <package android:name="com.termux" />
     <intent>
       <action android:name="android.intent.action.TTS_SERVICE" />
     </intent>

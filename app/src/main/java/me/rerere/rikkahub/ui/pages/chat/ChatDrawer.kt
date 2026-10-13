@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -39,6 +41,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -60,6 +63,7 @@ import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Code
 import me.rerere.common.android.appTempFolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -81,6 +85,7 @@ import me.rerere.rikkahub.data.datastore.hasConversationWorkspaceRoot
 import me.rerere.rikkahub.data.datastore.rememberWorkspaceForNewChatsIfEnabled
 import me.rerere.rikkahub.data.model.ChatTarget
 import me.rerere.rikkahub.data.model.Conversation
+import me.rerere.rikkahub.data.model.copyToAssistant
 import me.rerere.rikkahub.data.model.id
 import me.rerere.rikkahub.data.repository.ConversationRepository
 import me.rerere.rikkahub.ui.components.ai.AssistantPicker
@@ -119,6 +124,7 @@ fun ChatDrawerContent(
     val isPlayStore = rememberIsPlayStoreVersion()
     val repo = koinInject<ConversationRepository>()
     val drawerHaptics = rememberPremiumHaptics()
+    var selectedDrawerTab by remember { mutableIntStateOf(0) }
 
     val conversations = vm.conversations.collectAsLazyPagingItems()
     val searchQuery by vm.searchQuery.collectAsStateWithLifecycle()
@@ -131,6 +137,7 @@ fun ChatDrawerContent(
     LaunchedEffect(drawerState?.isOpen) {
         if (drawerState?.isOpen == true) {
             vm.resetProjectPreview()
+            selectedDrawerTab = 0
         }
     }
 
@@ -138,6 +145,9 @@ fun ChatDrawerContent(
     var projectToRename by remember { mutableStateOf<Project?>(null) }
     var projectToDelete by remember { mutableStateOf<Project?>(null) }
     var conversationToMove by remember { mutableStateOf<Conversation?>(null) }
+    var conversationToRename by remember { mutableStateOf<Conversation?>(null) }
+    var conversationRenameText by remember { mutableStateOf("") }
+    var conversationToCopy by remember { mutableStateOf<Conversation?>(null) }
 
     LaunchedEffect(settings.projectFeatureEnabled) {
         if (!settings.projectFeatureEnabled) {
@@ -303,6 +313,23 @@ fun ChatDrawerContent(
                 }
             }
 
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FilterChip(
+                    selected = selectedDrawerTab == 0,
+                    onClick = { selectedDrawerTab = 0 },
+                    label = { Text(stringResource(R.string.v2_drawer_tab_chats)) },
+                )
+                FilterChip(
+                    selected = selectedDrawerTab == 1,
+                    onClick = { selectedDrawerTab = 1 },
+                    label = { Text(stringResource(R.string.v2_drawer_tab_new)) },
+                )
+            }
+
+            if (selectedDrawerTab == 0) {
             // 聊天搜索框
             Box(modifier = Modifier.focusable())
             Row(
@@ -405,6 +432,11 @@ fun ChatDrawerContent(
                 onPin = {
                     vm.updatePinnedStatus(it)
                 },
+                onRename = {
+                    conversationRenameText = it.title
+                    conversationToRename = it
+                },
+                onCopyToAssistant = { conversationToCopy = it },
                 onExportConversationJson = { conversation ->
                     exportConversationJson(conversation)
                 },
@@ -415,6 +447,35 @@ fun ChatDrawerContent(
                 showConsolidateOption = canConsolidate,
                 showExportConversationJsonButton = settings.displaySetting.showExportConversationJsonButton,
             )
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        stringResource(R.string.v2_drawer_new_chat_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Button(
+                        onClick = {
+                            val id = Uuid.random()
+                            scope.launch {
+                                try {
+                                    drawerState?.close()
+                                } catch (_: Throwable) {
+                                    // Continue navigation if the close animation was interrupted.
+                                }
+                                navigateToChatPage(navController = navController, chatId = id)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.v2_drawer_start_new_chat))
+                    }
+                }
+            }
 
             // 助手选择器
             if (settings.assistants.size > 1 || settings.groupChatTemplates.isNotEmpty()) {
@@ -484,6 +545,12 @@ fun ChatDrawerContent(
                 )
 
                 DrawerAction(
+                    icon = { Icon(Icons.Rounded.Code, contentDescription = stringResource(R.string.v2_termux_page_title)) },
+                    label = { Text(stringResource(R.string.v2_termux_page_title)) },
+                    onClick = { navController.navigate(Screen.TermuxIntegration) },
+                )
+
+                DrawerAction(
                     icon = {
                         Icon(Icons.Rounded.Home, contentDescription = stringResource(R.string.menu))
                     },
@@ -534,6 +601,122 @@ fun ChatDrawerContent(
             },
             dismissButton = {
                 TextButton(onClick = { consolidationTarget = null }) {
+                    Text(stringResource(R.string.chat_page_cancel))
+                }
+            },
+        )
+    }
+
+    conversationToRename?.let { conversation ->
+        AlertDialog(
+            onDismissRequest = { conversationToRename = null },
+            title = { Text(stringResource(R.string.v2_conversation_rename)) },
+            text = {
+                OutlinedTextField(
+                    value = conversationRenameText,
+                    onValueChange = { conversationRenameText = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.v2_conversation_rename_label)) },
+                    singleLine = true,
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = conversationRenameText.isNotBlank(),
+                    onClick = {
+                        val title = conversationRenameText.trim()
+                        conversationToRename = null
+                        scope.launch {
+                            try {
+                                val fullConversation = withContext(Dispatchers.IO) {
+                                    repo.getConversationById(conversation.id)
+                                } ?: throw IllegalStateException("Conversation is unavailable")
+                                withContext(Dispatchers.IO) {
+                                    repo.updateConversation(fullConversation.copy(title = title, updateAt = java.time.Instant.now()))
+                                }
+                                toaster.show(
+                                    message = context.getString(R.string.v2_conversation_rename_saved),
+                                    type = ToastType.Success,
+                                )
+                            } catch (error: Exception) {
+                                toaster.show(
+                                    message = context.getString(R.string.v2_copy_to_assistant_failure),
+                                    type = ToastType.Error,
+                                )
+                            }
+                        }
+                    },
+                ) {
+                    Text(stringResource(R.string.save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { conversationToRename = null }) {
+                    Text(stringResource(R.string.chat_page_cancel))
+                }
+            },
+        )
+    }
+
+    conversationToCopy?.let { sourceConversation ->
+        val destinations = settings.assistants.filter { it.id != sourceConversation.assistantId }
+        AlertDialog(
+            onDismissRequest = { conversationToCopy = null },
+            title = { Text(stringResource(R.string.v2_copy_to_assistant_dialog_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(stringResource(R.string.v2_copy_to_assistant_dialog_message))
+                    if (destinations.isEmpty()) {
+                        Text(
+                            stringResource(R.string.v2_copy_no_other_assistants),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        destinations.forEach { destination ->
+                            TextButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = {
+                                    conversationToCopy = null
+                                    scope.launch {
+                                        try {
+                                            val fullSource = withContext(Dispatchers.IO) {
+                                                repo.getConversationById(sourceConversation.id)
+                                            } ?: throw IllegalStateException("Conversation is unavailable")
+                                            val copied = fullSource.copyToAssistant(destination.id)
+                                            withContext(Dispatchers.IO) { repo.insertConversation(copied) }
+                                            val target = ChatTarget.Assistant(destination.id)
+                                            vm.selectChatTarget(target)
+                                            withTimeoutOrNull(1500) {
+                                                vm.settings.first { current -> !current.init && current.chatTarget == target }
+                                            }
+                                            try {
+                                                drawerState?.close()
+                                            } catch (_: Throwable) {
+                                                // Continue navigation if drawer animation is interrupted.
+                                            }
+                                            navigateToChatPage(navController = navController, chatId = copied.id)
+                                            toaster.show(
+                                                message = context.getString(R.string.v2_copy_to_assistant_success),
+                                                type = ToastType.Success,
+                                            )
+                                        } catch (error: Exception) {
+                                            toaster.show(
+                                                message = context.getString(R.string.v2_copy_to_assistant_failure),
+                                                type = ToastType.Error,
+                                            )
+                                        }
+                                    }
+                                },
+                            ) {
+                                Text(destination.name.ifBlank { destination.id.toString() })
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { conversationToCopy = null }) {
                     Text(stringResource(R.string.chat_page_cancel))
                 }
             },

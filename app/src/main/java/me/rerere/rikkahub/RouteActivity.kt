@@ -104,6 +104,9 @@ import me.rerere.rikkahub.ui.pages.setting.SettingAndroidIntegrationPage
 import me.rerere.rikkahub.ui.pages.setting.SettingFontsPage
 import me.rerere.rikkahub.ui.pages.setting.SettingMessageToolbarPage
 import me.rerere.rikkahub.ui.pages.setting.SettingWebPage
+import me.rerere.rikkahub.ui.pages.setting.ConnectorsPage
+import me.rerere.rikkahub.ui.pages.setting.ConnectorDetailPage
+import me.rerere.rikkahub.ui.pages.setting.TermuxIntegrationPage
 import me.rerere.rikkahub.ui.motion.LocalMotionPolicy
 import me.rerere.rikkahub.ui.motion.rememberSystemMotionPolicy
 import me.rerere.rikkahub.ui.theme.LocalDarkMode
@@ -628,6 +631,19 @@ class RouteActivity : ComponentActivity() {
                         SettingPage()
                     }
 
+                    composable<Screen.Connectors> {
+                        ConnectorsPage()
+                    }
+
+                    composable<Screen.ConnectorDetail> { backStackEntry ->
+                        val route = backStackEntry.toRoute<Screen.ConnectorDetail>()
+                        ConnectorDetailPage(connectorId = route.connectorId)
+                    }
+
+                    composable<Screen.TermuxIntegration> {
+                        TermuxIntegrationPage()
+                    }
+
                     composable<Screen.StorageManager> {
                         StorageManagerPage()
                     }
@@ -826,6 +842,15 @@ sealed interface Screen {
 
     @Serializable
     data object Setting : Screen
+
+    @Serializable
+    data object Connectors : Screen
+
+    @Serializable
+    data class ConnectorDetail(val connectorId: String) : Screen
+
+    @Serializable
+    data object TermuxIntegration : Screen
 
     @Serializable
     data object StorageManager : Screen

@@ -2847,7 +2847,7 @@ class ChatService(
                         add(createAskUserTool(conversationId = conversation.id))
                     }
                     mcpManager.getAvailableToolsForAssistant(
-                        assistant = assistant,
+                        assistant = workspaceAssistant,
                         effectiveWorkspaceId = effectiveWorkspaceId,
                         reservedToolNames = this@toolList.map { it.name }.toSet(),
                     ).forEach { tool ->
@@ -3361,6 +3361,13 @@ class ChatService(
                 }
 
                 addAll(seatWorkspaceToolSet.tools)
+                addAll(
+                    localTools.getTools(
+                        options = seatAssistant.localTools,
+                        assistantId = seatAssistant.id,
+                        conversationId = conversation.id,
+                    )
+                )
                 if (seatAssistant.localTools.contains(LocalToolOption.MemorySearch)) {
                     addAll(
                         me.rerere.rikkahub.data.ai.tools.MemoryTools.create(
@@ -3381,9 +3388,6 @@ class ChatService(
                 val enabledSkills = settings.skills.includingBuiltInSkills().filter { skill -> skill.name in seatAssistant.enabledSkills }
                 if (enabledSkills.isNotEmpty()) {
                     add(localTools.createSkillFileTool(enabledSkills))
-                    if (seatAssistant.localTools.contains(LocalToolOption.GetCurrentTime)) {
-                        add(localTools.currentTimeTool)
-                    }
                 }
 
                 // MCP tools, if enabled for this seat.

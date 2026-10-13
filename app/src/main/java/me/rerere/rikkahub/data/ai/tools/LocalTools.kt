@@ -82,6 +82,34 @@ sealed class LocalToolOption {
     @Serializable
     @SerialName("github_connector")
     data object GithubConnector : LocalToolOption()
+
+    @Serializable
+    @SerialName("storage_connector")
+    data object StorageConnector : LocalToolOption()
+
+    @Serializable
+    @SerialName("drive_connector")
+    data object DriveConnector : LocalToolOption()
+
+    @Serializable
+    @SerialName("gmail_connector")
+    data object GmailConnector : LocalToolOption()
+
+    @Serializable
+    @SerialName("calendar_connector")
+    data object CalendarConnector : LocalToolOption()
+
+    @Serializable
+    @SerialName("instagram_connector")
+    data object InstagramConnector : LocalToolOption()
+
+    @Serializable
+    @SerialName("facebook_connector")
+    data object FacebookConnector : LocalToolOption()
+
+    @Serializable
+    @SerialName("termux_connector")
+    data object TermuxConnector : LocalToolOption()
 }
 
 class LocalTools(
@@ -585,6 +613,29 @@ class LocalTools(
             val githubPat = settingsStore.settingsFlow.value.githubPat.trim()
             if (githubPat.isNotBlank()) {
                 tools.addAll(createGithubTools(githubPat))
+                tools.addAll(createGithubWorkflowTools(githubPat))
+            }
+        }
+        if (options.contains(LocalToolOption.StorageConnector)) {
+            tools.addAll(createStorageTools(context))
+        }
+        if (options.contains(LocalToolOption.DriveConnector)) tools.addAll(createDriveTools())
+        if (options.contains(LocalToolOption.GmailConnector)) tools.addAll(createGmailTools())
+        if (options.contains(LocalToolOption.CalendarConnector)) tools.addAll(createCalendarTools())
+        if (options.contains(LocalToolOption.InstagramConnector)) tools.addAll(createInstagramTools())
+        if (options.contains(LocalToolOption.FacebookConnector)) tools.addAll(createFacebookTools())
+        if (options.contains(LocalToolOption.TermuxConnector)) {
+            val termux = settingsStore.settingsFlow.value.termuxIntegrationSettings.normalized()
+            if (termux.enabled) {
+                tools.addAll(
+                    createTermuxTools(
+                        context = context,
+                        defaultTimeoutSeconds = termux.defaultCommandTimeoutSeconds.toLong(),
+                        callTimeoutMinutes = termux.toolCallTimeoutMinutes.toLong(),
+                        maxOutputLines = termux.maxOutputLines,
+                        maxOutputBytes = termux.maxOutputBytes,
+                    )
+                )
             }
         }
         return tools

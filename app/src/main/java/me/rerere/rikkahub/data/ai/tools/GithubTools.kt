@@ -35,7 +35,7 @@ private val githubJson = Json { ignoreUnknownKeys = true }
 private const val GITHUB_API = "https://api.github.com"
 private const val GITHUB_MAX_CHARS = 50_000
 
-private suspend fun githubApi(
+internal suspend fun githubApi(
     pat: String,
     path: String,
     method: String = "GET",
