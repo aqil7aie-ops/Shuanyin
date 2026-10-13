@@ -2821,4 +2821,6 @@
 
     <string name="v2_connector_test_connection">测试连接状态</string>
     <string name="v2_connector_test_unlinked">OAuth 未启用；此连接器仍保持未连接。</string>
+    <string name="assistant_page_local_tools_termux_connector_desc">允许助手在 Termux 和 Ubuntu（proot-distro）中执行命令：单次命令与持久会话。需要在 Termux 中启用 allow-external-apps。</string>
+    <string name="assistant_page_local_tools_termux_connector_title">Termux 连接器</string>
 </resources>

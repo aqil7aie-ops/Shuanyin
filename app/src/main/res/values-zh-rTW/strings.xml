@@ -2888,4 +2888,6 @@
 
     <string name="v2_connector_test_connection">測試連線狀態</string>
     <string name="v2_connector_test_unlinked">OAuth 未啟用；此連接器仍保持未連結。</string>
+    <string name="assistant_page_local_tools_termux_connector_desc">允許助手在 Termux 和 Ubuntu（proot-distro）中執行命令：單次命令與持久會話。需要在 Termux 中啟用 allow-external-apps。</string>
+    <string name="assistant_page_local_tools_termux_connector_title">Termux 連接器</string>
 </resources>

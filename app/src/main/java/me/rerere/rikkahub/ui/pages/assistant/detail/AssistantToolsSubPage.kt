@@ -293,6 +293,24 @@ fun AssistantToolsSubPage(
                 }
             )
 
+            // Termux Connector
+            SettingGroupItem(
+                title = stringResource(R.string.assistant_page_local_tools_termux_connector_title),
+                subtitle = stringResource(R.string.assistant_page_local_tools_termux_connector_desc),
+                trailing = {
+                    HapticSwitch(
+                        checked = assistant.localTools.contains(LocalToolOption.TermuxConnector),
+                        onCheckedChange = { enabled ->
+                            val newLocalTools = if (enabled) {
+                                assistant.localTools + LocalToolOption.TermuxConnector
+                            } else {
+                                assistant.localTools - LocalToolOption.TermuxConnector
+                            }
+                            onUpdate(assistant.copy(localTools = newLocalTools))
+                        }
+                    )
+                }
+            )
             // Get Current Time
             SettingGroupItem(
                 title = stringResource(R.string.assistant_page_local_tools_get_time_title),

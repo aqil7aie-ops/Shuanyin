@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.rerere.rikkahub.R
@@ -276,6 +277,42 @@ fun SettingAdvancedPage(vm: SettingVM = koinViewModel()) {
                                         displaySetting.copy(showExportConversationJsonButton = it)
                                     )
                                 }
+                            )
+                        }
+                    )
+                }
+            }
+
+            item {
+                SettingsGroup(
+                    title = stringResource(R.string.setting_page_connectors_title)
+                ) {
+                    SettingGroupItem(
+                        title = stringResource(R.string.setting_page_github_pat_title),
+                        subtitle = stringResource(R.string.setting_page_github_pat_desc),
+                        trailing = {
+                            var patText by remember(settings.githubPat) {
+                                mutableStateOf(settings.githubPat)
+                            }
+                            OutlinedTextField(
+                                value = patText,
+                                onValueChange = { value ->
+                                    patText = value
+                                    vm.updateSettings { current ->
+                                        if (current.githubPat == value) current
+                                        else current.copy(githubPat = value)
+                                    }
+                                },
+                                modifier = Modifier.widthIn(min = 140.dp, max = 220.dp),
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Password,
+                                    imeAction = ImeAction.Done,
+                                ),
+                                keyboardActions = KeyboardActions(
+                                    onDone = { focusManager.clearFocus() }
+                                ),
                             )
                         }
                     )

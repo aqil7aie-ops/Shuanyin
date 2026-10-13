@@ -2901,4 +2901,6 @@
 
     <string name="v2_connector_test_connection">اختبار حالة الاتصال</string>
     <string name="v2_connector_test_unlinked">OAuth غير مفعّل؛ وسيبقى هذا الموصل غير مربوط.</string>
+    <string name="assistant_page_local_tools_termux_connector_desc">السماح للمساعد بتنفيذ الأوامر في Termux وأوبونتو (proot-distro): أوامر فورية وجلسات دائمة. يتطلب Termux مع تفعيل allow-external-apps.</string>
+    <string name="assistant_page_local_tools_termux_connector_title">موصل Termux</string>
 </resources>

@@ -2898,4 +2898,6 @@
 
     <string name="v2_connector_test_connection">Test connection status</string>
     <string name="v2_connector_test_unlinked">OAuth is not enabled; this connector remains not linked.</string>
+    <string name="assistant_page_local_tools_termux_connector_desc">Let the assistant run commands in Termux and Ubuntu (proot-distro): one-shot commands and persistent sessions. Needs Termux with allow-external-apps enabled.</string>
+    <string name="assistant_page_local_tools_termux_connector_title">Termux Connector</string>
 </resources>

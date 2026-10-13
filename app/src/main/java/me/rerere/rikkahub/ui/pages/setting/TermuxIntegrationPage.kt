@@ -41,10 +41,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonPrimitive
 import me.rerere.rikkahub.R
-import me.rerere.rikkahub.data.ai.tools.TermuxCommandRunner
+import me.rerere.rikkahub.data.ai.tools.TermuxIntegration
 import me.rerere.rikkahub.data.datastore.SettingsStore
 import me.rerere.rikkahub.ui.components.nav.BackButton
 import me.rerere.rikkahub.ui.components.nav.OneUITopAppBar
@@ -82,23 +80,15 @@ fun TermuxIntegrationPage() {
             configTestStatus = resolveTermuxExternalAppsStatus(installedNow, permissionGrantedNow, null)
             return
         }
-        val runner = TermuxCommandRunner(
-            context = context,
-            defaultTimeoutSeconds = 10,
-            callTimeoutMinutes = 1,
-            maxOutputLines = 20,
-            maxOutputBytes = 4_096,
-        )
-        val response = runCatching {
-            withContext(Dispatchers.IO) {
-                runner.run(
-                    "props=\"\$HOME/.termux/termux.properties\"; [ -r \"\$props\" ] || { echo missing; exit 1; }; awk -F= '\$1 ~ /^[[:space:]]*allow-external-apps[[:space:]]*$/ { value = \$2; sub(/[[:space:]]*#.*/, \"\", value); gsub(/^[[:space:]]+|[[:space:]]+$/, \"\", value) } END { if (value == \"true\") { print \"enabled\"; exit 0 } print \"missing\"; exit 1 }' \"\$props\"",
-                    ubuntu = false,
-                )
-            }
-        }.getOrNull()
-        val exitCode = response?.get("exitCode")?.jsonPrimitive?.intOrNull
-        configTestStatus = resolveTermuxExternalAppsStatus(installedNow, permissionGrantedNow, exitCode)
+        val result = withContext(Dispatchers.IO) { TermuxIntegration.verify(context) }
+        configTestStatus = when (result) {
+            TermuxIntegration.VerifyResult.NotInstalled -> TermuxExternalAppsStatus.NOT_INSTALLED
+            TermuxIntegration.VerifyResult.NoPermission -> TermuxExternalAppsStatus.RUN_COMMAND_PERMISSION_REQUIRED
+            TermuxIntegration.VerifyResult.AllowExternalAppsMissing -> TermuxExternalAppsStatus.ALLOW_EXTERNAL_APPS_MISSING
+            TermuxIntegration.VerifyResult.Ok -> TermuxExternalAppsStatus.READY
+            is TermuxIntegration.VerifyResult.UnexpectedOutput,
+            is TermuxIntegration.VerifyResult.OtherError -> TermuxExternalAppsStatus.CHECK_FAILED
+        }
     }
 
     fun queueExternalAppsProbe() {
@@ -149,7 +139,13 @@ fun TermuxIntegrationPage() {
     fun updateIntegration(transform: (me.rerere.rikkahub.data.datastore.TermuxIntegrationSettings) -> me.rerere.rikkahub.data.datastore.TermuxIntegrationSettings) {
         scope.launch {
             settingsStore.update { current ->
-                current.copy(termuxIntegrationSettings = transform(current.termuxIntegrationSettings).normalized())
+                val updated = transform(current.termuxIntegrationSettings).normalized()
+                current.copy(
+                    termuxIntegrationSettings = updated,
+                    termuxEnabled = updated.enabled,
+                    termuxCommandTimeoutSec = updated.defaultCommandTimeoutSeconds.coerceIn(5, 600),
+                    termuxToolTimeoutMin = updated.toolCallTimeoutMinutes.coerceIn(1, 60),
+                )
             }
         }
     }

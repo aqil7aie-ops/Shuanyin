@@ -40,6 +40,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,6 +96,9 @@ fun ChatMessageReasoning(
     fadeHeight: Float = 64f,
 ) {
     var expandState by remember { mutableStateOf(ReasoningCardState.Collapsed) }
+    // The user explicitly collapsed the card: auto-expand logic must never override it.
+    // rememberSaveable so the choice survives rotation; the last user action always wins.
+    var userCollapsed by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val settings = LocalSettings.current
     val effectiveDisplay = remember(settings) { settings.getEffectiveDisplaySetting() }
@@ -103,12 +107,12 @@ fun ChatMessageReasoning(
 
     LaunchedEffect(reasoning.reasoning, loading) {
         if (loading) {
-            if (!expandState.expanded) expandState = ReasoningCardState.Preview
+            if (!expandState.expanded && !userCollapsed) expandState = ReasoningCardState.Preview
             if (!isGemini) {
                 scrollState.animateScrollTo(scrollState.maxValue)
             }
         } else {
-            if (expandState.expanded) {
+            if (expandState.expanded && !userCollapsed) {
                 expandState = if (effectiveDisplay.autoCloseThinking) {
                     ReasoningCardState.Collapsed
                 } else {
@@ -136,11 +140,14 @@ fun ChatMessageReasoning(
     }
 
     fun toggle() {
-        expandState = if (loading) {
+        val next = if (loading) {
             if (expandState == ReasoningCardState.Expanded) ReasoningCardState.Preview else ReasoningCardState.Expanded
         } else {
             if (expandState == ReasoningCardState.Expanded) ReasoningCardState.Collapsed else ReasoningCardState.Expanded
         }
+        expandState = next
+        // Record the user's explicit choice; auto-expand must respect it from now on.
+        userCollapsed = (next == ReasoningCardState.Collapsed)
     }
 
     Surface(
