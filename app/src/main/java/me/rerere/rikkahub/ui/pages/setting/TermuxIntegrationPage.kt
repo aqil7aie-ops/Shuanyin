@@ -2,6 +2,8 @@ package me.rerere.rikkahub.ui.pages.setting
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,8 +34,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import me.rerere.rikkahub.R
@@ -54,18 +62,88 @@ fun TermuxIntegrationPage() {
     val settings by settingsStore.settingsFlow.collectAsStateWithLifecycle()
     val integration = settings.termuxIntegrationSettings.normalized()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
-    var configTestState by remember { mutableStateOf("") }
+    var configTestStatus by remember { mutableStateOf(TermuxExternalAppsStatus.NOT_CHECKED) }
     var configTestBusy by remember { mutableStateOf(false) }
-    var requestPermissionGranted by remember { mutableStateOf<Boolean?>(null) }
+    var termuxInstalled by remember { mutableStateOf(false) }
+    var hasPermission by remember { mutableStateOf(false) }
+    var permissionRequestDenied by remember { mutableStateOf(false) }
 
-    val termuxInstalled = remember {
-        runCatching { context.packageManager.getApplicationInfo(TERMUX_PACKAGE_NAME, 0) }.isSuccess
+    suspend fun runExternalAppsProbe() {
+        val installedNow = runCatching {
+            context.packageManager.getApplicationInfo(TERMUX_PACKAGE_NAME, 0)
+        }.isSuccess
+        val permissionGrantedNow = ContextCompat.checkSelfPermission(context, TERMUX_RUN_COMMAND_PERMISSION) == PackageManager.PERMISSION_GRANTED
+        termuxInstalled = installedNow
+        hasPermission = permissionGrantedNow
+        if (permissionGrantedNow) permissionRequestDenied = false
+        if (!installedNow || !permissionGrantedNow) {
+            configTestStatus = resolveTermuxExternalAppsStatus(installedNow, permissionGrantedNow, null)
+            return
+        }
+        val runner = TermuxCommandRunner(
+            context = context,
+            defaultTimeoutSeconds = 10,
+            callTimeoutMinutes = 1,
+            maxOutputLines = 20,
+            maxOutputBytes = 4_096,
+        )
+        val response = runCatching {
+            withContext(Dispatchers.IO) {
+                runner.run(
+                    "props=\"\$HOME/.termux/termux.properties\"; [ -r \"\$props\" ] || { echo missing; exit 1; }; awk -F= '\$1 ~ /^[[:space:]]*allow-external-apps[[:space:]]*$/ { value = \$2; sub(/[[:space:]]*#.*/, \"\", value); gsub(/^[[:space:]]+|[[:space:]]+$/, \"\", value) } END { if (value == \"true\") { print \"enabled\"; exit 0 } print \"missing\"; exit 1 }' \"\$props\"",
+                    ubuntu = false,
+                )
+            }
+        }.getOrNull()
+        val exitCode = response?.get("exitCode")?.jsonPrimitive?.intOrNull
+        configTestStatus = resolveTermuxExternalAppsStatus(installedNow, permissionGrantedNow, exitCode)
     }
-    val hasPermission = ContextCompat.checkSelfPermission(context, TERMUX_RUN_COMMAND_PERMISSION) == PackageManager.PERMISSION_GRANTED
+
+    fun queueExternalAppsProbe() {
+        if (configTestBusy) return
+        configTestBusy = true
+        configTestStatus = TermuxExternalAppsStatus.CHECKING
+        scope.launch {
+            try {
+                runExternalAppsProbe()
+            } finally {
+                configTestBusy = false
+            }
+        }
+    }
+
+    fun refreshTermuxState() {
+        val installedNow = runCatching {
+            context.packageManager.getApplicationInfo(TERMUX_PACKAGE_NAME, 0)
+        }.isSuccess
+        val permissionGrantedNow = ContextCompat.checkSelfPermission(context, TERMUX_RUN_COMMAND_PERMISSION) == PackageManager.PERMISSION_GRANTED
+        termuxInstalled = installedNow
+        hasPermission = permissionGrantedNow
+        if (permissionGrantedNow) permissionRequestDenied = false
+        if (installedNow && permissionGrantedNow) {
+            queueExternalAppsProbe()
+        } else {
+            configTestStatus = resolveTermuxExternalAppsStatus(installedNow, permissionGrantedNow, null)
+        }
+    }
+
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) refreshTermuxState()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        refreshTermuxState()
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        requestPermissionGranted = granted
+        hasPermission = granted
+        permissionRequestDenied = !granted
+        if (granted) queueExternalAppsProbe()
+        else configTestStatus = TermuxExternalAppsStatus.RUN_COMMAND_PERMISSION_REQUIRED
     }
+    val permissionAction = resolveTermuxPermissionAction(termuxInstalled, hasPermission, permissionRequestDenied)
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     fun updateIntegration(transform: (me.rerere.rikkahub.data.datastore.TermuxIntegrationSettings) -> me.rerere.rikkahub.data.datastore.TermuxIntegrationSettings) {
@@ -109,17 +187,38 @@ fun TermuxIntegrationPage() {
                     subtitle = stringResource(
                         when {
                             hasPermission -> R.string.v2_termux_permission_granted
-                            requestPermissionGranted == false -> R.string.v2_termux_permission_missing
                             else -> R.string.v2_termux_permission_missing
                         },
                     ),
                 )
-                if (termuxInstalled && !hasPermission) {
-                    Button(
-                        onClick = { permissionLauncher.launch(TERMUX_RUN_COMMAND_PERMISSION) },
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-                    ) {
-                        Text(stringResource(R.string.v2_termux_request_permission))
+                when (permissionAction) {
+                    TermuxPermissionAction.HIDDEN -> Unit
+                    TermuxPermissionAction.REQUEST -> {
+                        Button(
+                            onClick = { permissionLauncher.launch(TERMUX_RUN_COMMAND_PERMISSION) },
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+                        ) {
+                            Text(stringResource(R.string.v2_termux_request_permission))
+                        }
+                    }
+                    TermuxPermissionAction.OPEN_APP_SETTINGS -> {
+                        Button(
+                            onClick = {
+                                val appSettingsIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                }
+                                runCatching { context.startActivity(appSettingsIntent) }
+                            },
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+                        ) {
+                            Text(stringResource(R.string.v2_termux_open_permission_settings))
+                        }
+                        Text(
+                            text = stringResource(R.string.v2_termux_permission_settings_help),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        )
                     }
                 }
                 if (termuxInstalled) {
@@ -140,58 +239,31 @@ fun TermuxIntegrationPage() {
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 )
                 Button(
-                    onClick = {
-                        scope.launch {
-                            configTestBusy = true
-                            configTestState = ""
-                            val runner = TermuxCommandRunner(
-                                context = context,
-                                defaultTimeoutSeconds = 10,
-                                callTimeoutMinutes = 1,
-                                maxOutputLines = 20,
-                                maxOutputBytes = 4_096,
-                            )
-                            val response = runCatching {
-                                runner.run(
-                                    "grep -Eq '^[[:space:]]*allow-external-apps[[:space:]]*=[[:space:]]*true([[:space:]]*(#.*)?)?$' \"\$HOME/.termux/termux.properties\" && echo enabled || { echo missing; exit 1; }",
-                                    ubuntu = false,
-                                )
-                            }.getOrNull()
-                            val exitCode = response?.get("exitCode")?.jsonPrimitive?.intOrNull
-                            configTestState = when {
-                                !termuxInstalled || !hasPermission || response == null -> "failed"
-                                exitCode == 0 -> "ready"
-                                exitCode == 1 -> "missing"
-                                else -> "failed"
-                            }
-                            configTestBusy = false
-                        }
-                    },
+                    onClick = { queueExternalAppsProbe() },
                     enabled = termuxInstalled && hasPermission && !configTestBusy,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
                 ) {
                     Text(stringResource(R.string.v2_termux_check_external_apps))
                 }
-                if (configTestBusy) {
-                    Text(
-                        stringResource(R.string.v2_termux_check_external_apps),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    )
+                val statusRes = when (configTestStatus) {
+                    TermuxExternalAppsStatus.NOT_CHECKED -> R.string.v2_termux_check_external_apps_not_checked
+                    TermuxExternalAppsStatus.CHECKING -> R.string.v2_termux_check_external_apps_checking
+                    TermuxExternalAppsStatus.NOT_INSTALLED -> R.string.v2_termux_check_external_apps_not_installed
+                    TermuxExternalAppsStatus.RUN_COMMAND_PERMISSION_REQUIRED -> R.string.v2_termux_check_external_apps_permission_required
+                    TermuxExternalAppsStatus.READY -> R.string.v2_termux_check_external_apps_ready
+                    TermuxExternalAppsStatus.ALLOW_EXTERNAL_APPS_MISSING -> R.string.v2_termux_check_external_apps_missing
+                    TermuxExternalAppsStatus.CHECK_FAILED -> R.string.v2_termux_check_external_apps_failed
                 }
-                if (configTestState.isNotBlank()) {
-                    val statusRes = when (configTestState) {
-                        "ready" -> R.string.v2_termux_check_external_apps_ready
-                        "missing" -> R.string.v2_termux_check_external_apps_missing
-                        else -> R.string.v2_termux_check_external_apps_failed
-                    }
-                    Text(
-                        stringResource(statusRes),
-                        color = if (configTestState == "ready") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                    )
-                }
+                Text(
+                    stringResource(statusRes),
+                    color = when (configTestStatus) {
+                        TermuxExternalAppsStatus.READY -> MaterialTheme.colorScheme.primary
+                        TermuxExternalAppsStatus.NOT_CHECKED, TermuxExternalAppsStatus.CHECKING -> MaterialTheme.colorScheme.onSurfaceVariant
+                        else -> MaterialTheme.colorScheme.error
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                )
             }
 
             SettingsGroup(title = stringResource(R.string.v2_termux_page_title)) {

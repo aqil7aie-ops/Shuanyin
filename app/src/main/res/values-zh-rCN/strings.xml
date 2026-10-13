@@ -2741,7 +2741,7 @@
     <string name="v2_facebook_tool_title">Facebook</string>
     <string name="v2_facebook_tool_description">已准备但未连接；Meta OAuth 未启用。</string>
     <string name="v2_termux_tool_title">Termux</string>
-    <string name="v2_termux_tool_description">启用后，每条命令都需要单独批准。</string>
+    <string name="v2_termux_tool_description">需要先启用此全局集成；每条命令仍需单独批准。</string>
     <string name="v2_connectors_title">连接器</string>
     <string name="v2_connectors_description">配置连接器凭据。Google 和 Meta 在 OAuth 完成前保持未连接。</string>
     <string name="v2_connectors_github_title">GitHub</string>
@@ -2780,17 +2780,23 @@
     <string name="v2_storage_permission_grant">授予所有文件访问权限</string>
     <string name="v2_termux_page_title">Termux 集成</string>
     <string name="v2_termux_enabled_title">启用 Termux 工具</string>
-    <string name="v2_termux_enabled_description">启用后，符合条件的助手可使用两项逐次审批的 Termux 工具。</string>
+    <string name="v2_termux_enabled_description">先在此启用 Termux，再到每个助手的“工具”设置中打开 Termux 连接器。每条命令仍需批准。</string>
     <string name="v2_termux_installed">已安装 Termux。</string>
     <string name="v2_termux_not_installed">未安装 Termux。请单独安装后再使用。</string>
-    <string name="v2_termux_permission_granted">已授予 RUN_COMMAND 权限。</string>
+    <string name="v2_termux_permission_granted">已向此应用授予 Android RUN_COMMAND 权限。</string>
     <string name="v2_termux_permission_missing">未授予 RUN_COMMAND 权限。</string>
     <string name="v2_termux_request_permission">请求 RUN_COMMAND 权限</string>
+    <string name="v2_termux_open_permission_settings">打开应用权限设置</string>
+    <string name="v2_termux_permission_settings_help">如果请求被关闭或拒绝，请在 Android 设置中为此应用授予“在 Termux 环境中运行命令”权限。</string>
     <string name="v2_termux_open_app">打开 Termux</string>
     <string name="v2_termux_check_external_apps">检查 allow-external-apps</string>
-    <string name="v2_termux_check_external_apps_ready">已启用外部命令访问。</string>
-    <string name="v2_termux_check_external_apps_missing">未启用外部命令访问。请在 Termux 设置中设为 true 后重新打开。</string>
-    <string name="v2_termux_check_external_apps_failed">无法检查 Termux 设置。请确认已安装并授予权限。</string>
+    <string name="v2_termux_check_external_apps_not_checked">尚未检查 Termux 连接。</string>
+    <string name="v2_termux_check_external_apps_checking">正在通过测试命令检查 Termux…</string>
+    <string name="v2_termux_check_external_apps_not_installed">未安装 Termux，无法检查外部命令访问。</string>
+    <string name="v2_termux_check_external_apps_permission_required">请先授予 Android RUN_COMMAND 权限；尚未验证 allow-external-apps。</string>
+    <string name="v2_termux_check_external_apps_ready">外部命令检查通过；RUN_COMMAND 权限和 allow-external-apps 均可正常工作。</string>
+    <string name="v2_termux_check_external_apps_missing">未启用外部命令访问。请在 ~/.termux/termux.properties 中设置 allow-external-apps=true，然后重新打开 Termux。</string>
+    <string name="v2_termux_check_external_apps_failed">测试命令未能完成。请检查 Android RUN_COMMAND 权限及 Termux 中的 allow-external-apps=true，然后重新打开 Termux 再试。</string>
     <string name="v2_termux_external_apps_help">在 Termux 的 ~/.termux/termux.properties 中添加 allow-external-apps=true，然后强行停止并重新打开 Termux。</string>
     <string name="v2_termux_default_timeout">命令超时（秒）</string>
     <string name="v2_termux_call_timeout">工具调用超时（分钟）</string>

@@ -624,19 +624,21 @@ class LocalTools(
         if (options.contains(LocalToolOption.CalendarConnector)) tools.addAll(createCalendarTools())
         if (options.contains(LocalToolOption.InstagramConnector)) tools.addAll(createInstagramTools())
         if (options.contains(LocalToolOption.FacebookConnector)) tools.addAll(createFacebookTools())
-        if (options.contains(LocalToolOption.TermuxConnector)) {
-            val termux = settingsStore.settingsFlow.value.termuxIntegrationSettings.normalized()
-            if (termux.enabled) {
-                tools.addAll(
-                    createTermuxTools(
-                        context = context,
-                        defaultTimeoutSeconds = termux.defaultCommandTimeoutSeconds.toLong(),
-                        callTimeoutMinutes = termux.toolCallTimeoutMinutes.toLong(),
-                        maxOutputLines = termux.maxOutputLines,
-                        maxOutputBytes = termux.maxOutputBytes,
-                    )
+        val termux = settingsStore.settingsFlow.value.termuxIntegrationSettings.normalized()
+        if (shouldExposeTermuxTools(
+                assistantConnectorEnabled = options.contains(LocalToolOption.TermuxConnector),
+                integrationEnabled = termux.enabled,
+            )
+        ) {
+            tools.addAll(
+                createTermuxTools(
+                    context = context,
+                    defaultTimeoutSeconds = termux.defaultCommandTimeoutSeconds.toLong(),
+                    callTimeoutMinutes = termux.toolCallTimeoutMinutes.toLong(),
+                    maxOutputLines = termux.maxOutputLines,
+                    maxOutputBytes = termux.maxOutputBytes,
                 )
-            }
+            )
         }
         return tools
     }

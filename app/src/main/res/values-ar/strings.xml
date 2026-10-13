@@ -2821,7 +2821,7 @@
     <string name="v2_facebook_tool_title">Facebook</string>
     <string name="v2_facebook_tool_description">مهيأ لكنه غير مربوط؛ OAuth من Meta غير مفعّل.</string>
     <string name="v2_termux_tool_title">Termux</string>
-    <string name="v2_termux_tool_description">تشغيل الأوامر بعد موافقة منفصلة لكل أمر عند التفعيل.</string>
+    <string name="v2_termux_tool_description">يتطلب تفعيل التكامل العام هنا؛ وكل أمر يتطلب موافقتك.</string>
     <string name="v2_connectors_title">الموصلات</string>
     <string name="v2_connectors_description">اضبط بيانات الموصلات. تبقى Google وMeta غير مربوطتين حتى اكتمال دعم OAuth.</string>
     <string name="v2_connectors_github_title">GitHub</string>
@@ -2860,17 +2860,23 @@
     <string name="v2_storage_permission_grant">منح إذن الوصول إلى كل الملفات</string>
     <string name="v2_termux_page_title">تكامل Termux</string>
     <string name="v2_termux_enabled_title">تفعيل أدوات Termux</string>
-    <string name="v2_termux_enabled_description">عند التفعيل، يمكن للمساعدين المؤهلين استخدام أداتين تتطلب كل منهما موافقتك.</string>
+    <string name="v2_termux_enabled_description">فعّل Termux هنا، ثم فعّل موصل Termux من إعدادات الأدوات لكل مساعد. يظل كل أمر بحاجة إلى موافقتك.</string>
     <string name="v2_termux_installed">تطبيق Termux مثبت.</string>
     <string name="v2_termux_not_installed">تطبيق Termux غير مثبت. ثبّته بشكل منفصل لاستخدام هذا التكامل.</string>
-    <string name="v2_termux_permission_granted">إذن RUN_COMMAND ممنوح.</string>
+    <string name="v2_termux_permission_granted">إذن Android‏ RUN_COMMAND ممنوح لهذا التطبيق.</string>
     <string name="v2_termux_permission_missing">إذن RUN_COMMAND غير ممنوح.</string>
     <string name="v2_termux_request_permission">طلب إذن RUN_COMMAND</string>
+    <string name="v2_termux_open_permission_settings">فتح إعدادات أذونات التطبيق</string>
+    <string name="v2_termux_permission_settings_help">إذا أُغلق الطلب أو رُفض، فامنح إذن «تشغيل الأوامر في بيئة Termux» لهذا التطبيق من إعدادات Android ← الأذونات.</string>
     <string name="v2_termux_open_app">فتح Termux</string>
     <string name="v2_termux_check_external_apps">فحص allow-external-apps</string>
-    <string name="v2_termux_check_external_apps_ready">الوصول من التطبيقات الخارجية مفعّل.</string>
-    <string name="v2_termux_check_external_apps_missing">الوصول الخارجي غير مفعّل. أضف allow-external-apps=true في إعدادات Termux ثم أعد فتحه.</string>
-    <string name="v2_termux_check_external_apps_failed">تعذر فحص إعدادات Termux. تأكد من تثبيته ومنح الإذن.</string>
+    <string name="v2_termux_check_external_apps_not_checked">لم يتم فحص اتصال Termux بعد.</string>
+    <string name="v2_termux_check_external_apps_checking">جارٍ فحص Termux عبر تشغيل أمر اختبار…</string>
+    <string name="v2_termux_check_external_apps_not_installed">Termux غير مثبت، لذلك لا يمكن فحص الوصول إلى الأوامر الخارجية.</string>
+    <string name="v2_termux_check_external_apps_permission_required">امنح إذن Android‏ RUN_COMMAND أولًا؛ لم يتم التحقق بعد من allow-external-apps.</string>
+    <string name="v2_termux_check_external_apps_ready">نجح اختبار الأمر الخارجي؛ يعمل إذن RUN_COMMAND وإعداد allow-external-apps.</string>
+    <string name="v2_termux_check_external_apps_missing">الوصول الخارجي غير مفعّل. أضف allow-external-apps=true إلى ~/.termux/termux.properties ثم أعد فتح Termux.</string>
+    <string name="v2_termux_check_external_apps_failed">لم يكتمل أمر الاختبار. تحقّق من إذن Android‏ RUN_COMMAND ومن allow-external-apps=true داخل Termux، ثم أعد فتحه وحاول مجددًا.</string>
     <string name="v2_termux_external_apps_help">في Termux أضف allow-external-apps=true إلى ~/.termux/termux.properties، ثم أوقف التطبيق إجباريًا وافتحه مجددًا.</string>
     <string name="v2_termux_default_timeout">مهلة الأمر (ثوانٍ)</string>
     <string name="v2_termux_call_timeout">مهلة استدعاء الأداة (دقائق)</string>

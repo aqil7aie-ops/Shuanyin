@@ -1,0 +1,79 @@
+name: Build Shuanyin expRelease APK artifact
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/feature'
+    name: Build expRelease APK artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web-ui/package-lock.json
+
+      - name: Install web UI dependencies
+        working-directory: web-ui
+        run: npm ci
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install pinned NDK
+        run: sdkmanager --install "ndk;28.2.13676358"
+
+      - name: Configure exp Firebase build options
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p app/src/exp
+          cat > app/src/exp/google-services.json <<'JSON'
+          {"client":[{"api_key":[{"current_key":"dummy-key-for-local-builds"}],"client_info":{"android_client_info":{"package_name":"com.aqeel.shuanyin.exp"},"mobilesdk_app_id":"1:000000000000:android:0000000000000000"},"oauth_client":[],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],"configuration_version":"1","project_info":{"project_id":"shuanyin-dummy","project_number":"000000000000","storage_bucket":"shuanyin-dummy.appspot.com"}}
+          JSON
+
+      - name: Configure existing release signing secrets if present
+        shell: bash
+        env:
+          KEY_BASE64: ${{ secrets.KEY_BASE64 }}
+          SIGNING_CONFIG: ${{ secrets.SIGNING_CONFIG }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${KEY_BASE64}" ]]; then
+            printf '%s' "${KEY_BASE64}" | base64 -d > app/app.key
+          fi
+          if [[ -n "${SIGNING_CONFIG}" ]]; then
+            printf '%s' "${SIGNING_CONFIG}" > local.properties
+          fi
+
+      - name: Build expRelease APK
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleExpRelease --no-daemon --max-workers=2 --stacktrace -x :app:uploadCrashlyticsMappingFileExpRelease
+
+      - name: Upload APK artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: Shuanyin-exp-release-${{ github.run_number }}
+          path: app/build/outputs/apk/exp/release/*.apk
+          if-no-files-found: error
+          retention-days: 14

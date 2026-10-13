@@ -2818,7 +2818,7 @@
     <string name="v2_facebook_tool_title">Facebook</string>
     <string name="v2_facebook_tool_description">Prepared but not linked; Meta OAuth is not active.</string>
     <string name="v2_termux_tool_title">Termux</string>
-    <string name="v2_termux_tool_description">Run commands with per-command approval when enabled.</string>
+    <string name="v2_termux_tool_description">Requires this global integration to be enabled; each command needs your approval.</string>
     <string name="v2_connectors_title">Connectors</string>
     <string name="v2_connectors_description">Configure connector credentials. Google and Meta remain unlinked until OAuth support is completed.</string>
     <string name="v2_connectors_github_title">GitHub</string>
@@ -2857,17 +2857,23 @@
     <string name="v2_storage_permission_grant">Grant all-files access</string>
     <string name="v2_termux_page_title">Termux integration</string>
     <string name="v2_termux_enabled_title">Enable Termux tools</string>
-    <string name="v2_termux_enabled_description">When enabled, eligible assistants can use two approval-gated Termux tools.</string>
+    <string name="v2_termux_enabled_description">Enable Termux here, then turn on the Termux connector in each assistant’s Tools settings. Each command still requires approval.</string>
     <string name="v2_termux_installed">Termux is installed.</string>
     <string name="v2_termux_not_installed">Termux is not installed. Install it separately to use this integration.</string>
-    <string name="v2_termux_permission_granted">RUN_COMMAND permission granted.</string>
+    <string name="v2_termux_permission_granted">Android RUN_COMMAND permission granted to this app.</string>
     <string name="v2_termux_permission_missing">RUN_COMMAND permission is not granted.</string>
     <string name="v2_termux_request_permission">Request RUN_COMMAND permission</string>
+    <string name="v2_termux_open_permission_settings">Open app permission settings</string>
+    <string name="v2_termux_permission_settings_help">If the prompt was dismissed or denied, allow “Run commands in Termux environment” under this app’s Permissions in Android Settings.</string>
     <string name="v2_termux_open_app">Open Termux</string>
     <string name="v2_termux_check_external_apps">Check allow-external-apps</string>
-    <string name="v2_termux_check_external_apps_ready">External command access is enabled.</string>
-    <string name="v2_termux_check_external_apps_missing">External command access is not enabled. Set allow-external-apps=true in Termux settings, then reload Termux.</string>
-    <string name="v2_termux_check_external_apps_failed">Could not check Termux settings. Confirm Termux is installed and permission is granted.</string>
+    <string name="v2_termux_check_external_apps_not_checked">Termux connection has not been checked yet.</string>
+    <string name="v2_termux_check_external_apps_checking">Checking Termux by running a test command…</string>
+    <string name="v2_termux_check_external_apps_not_installed">Termux is not installed, so external command access cannot be checked.</string>
+    <string name="v2_termux_check_external_apps_permission_required">Grant Android RUN_COMMAND first; allow-external-apps has not been verified yet.</string>
+    <string name="v2_termux_check_external_apps_ready">External-command check passed; RUN_COMMAND and allow-external-apps are working.</string>
+    <string name="v2_termux_check_external_apps_missing">External-command access is not enabled. Set allow-external-apps=true in ~/.termux/termux.properties, then reopen Termux.</string>
+    <string name="v2_termux_check_external_apps_failed">The test command did not complete. Verify Android RUN_COMMAND and allow-external-apps=true in Termux, then reopen Termux and retry.</string>
     <string name="v2_termux_external_apps_help">In Termux, add allow-external-apps=true to ~/.termux/termux.properties, then force-stop and reopen Termux.</string>
     <string name="v2_termux_default_timeout">Command timeout (seconds)</string>
     <string name="v2_termux_call_timeout">Tool call timeout (minutes)</string>
