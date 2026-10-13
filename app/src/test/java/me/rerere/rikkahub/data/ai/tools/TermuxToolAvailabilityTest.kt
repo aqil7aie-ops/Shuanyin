@@ -12,4 +12,12 @@ class TermuxToolAvailabilityTest {
         assertFalse(shouldExposeTermuxTools(assistantConnectorEnabled = true, integrationEnabled = false))
         assertTrue(shouldExposeTermuxTools(assistantConnectorEnabled = true, integrationEnabled = true))
     }
+
+    @Test
+    fun `direct execution requires global integration assistant connector and full authorization`() {
+        assertTrue(shouldRunTermuxWithoutApproval(integrationEnabled = true, assistantConnectorEnabled = true, fullAuth = true))
+        assertFalse(shouldRunTermuxWithoutApproval(integrationEnabled = false, assistantConnectorEnabled = true, fullAuth = true))
+        assertFalse(shouldRunTermuxWithoutApproval(integrationEnabled = true, assistantConnectorEnabled = false, fullAuth = true))
+        assertFalse(shouldRunTermuxWithoutApproval(integrationEnabled = true, assistantConnectorEnabled = true, fullAuth = false))
+    }
 }

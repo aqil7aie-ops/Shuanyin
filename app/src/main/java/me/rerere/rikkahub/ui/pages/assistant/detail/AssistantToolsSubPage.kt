@@ -311,6 +311,26 @@ fun AssistantToolsSubPage(
                     )
                 }
             )
+            SettingGroupItem(
+                title = stringResource(R.string.assistant_page_local_tools_termux_full_auth_title),
+                subtitle = stringResource(R.string.assistant_page_local_tools_termux_full_auth_desc),
+                trailing = {
+                    HapticSwitch(
+                        checked = assistant.termuxFullAuth,
+                        onCheckedChange = { enabled -> onUpdate(assistant.copy(termuxFullAuth = enabled)) },
+                    )
+                }
+            )
+            SettingGroupItem(
+                title = stringResource(R.string.assistant_page_local_tools_termux_ubuntu_title),
+                subtitle = stringResource(R.string.assistant_page_local_tools_termux_ubuntu_desc),
+                trailing = {
+                    HapticSwitch(
+                        checked = assistant.termuxUbuntuEnabled,
+                        onCheckedChange = { enabled -> onUpdate(assistant.copy(termuxUbuntuEnabled = enabled)) },
+                    )
+                }
+            )
             // Get Current Time
             SettingGroupItem(
                 title = stringResource(R.string.assistant_page_local_tools_get_time_title),

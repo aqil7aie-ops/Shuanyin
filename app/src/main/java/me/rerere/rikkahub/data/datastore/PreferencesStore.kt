@@ -307,8 +307,6 @@ class SettingsStore(
         val CONNECTOR_LINK_SETTINGS = stringPreferencesKey("connector_link_settings")
         val TERMUX_INTEGRATION_SETTINGS = stringPreferencesKey("termux_integration_settings")
         val TERMUX_ENABLED = booleanPreferencesKey("termux_enabled")
-        val TERMUX_FULL_AUTH = booleanPreferencesKey("termux_full_auth")
-        val TERMUX_UBUNTU_ENABLED = booleanPreferencesKey("termux_ubuntu_enabled")
         val TERMUX_COMMAND_TIMEOUT_SEC = intPreferencesKey("termux_command_timeout_sec")
         val TERMUX_TOOL_TIMEOUT_MIN = intPreferencesKey("termux_tool_timeout_min")
 
@@ -615,8 +613,6 @@ class SettingsStore(
                     runCatching { JsonInstant.decodeFromString<ConnectorLinkSettings>(raw) }.getOrNull()
                 } ?: ConnectorLinkSettings(),
                 termuxEnabled = preferences[TERMUX_ENABLED] ?: termuxIntegrationSettings.enabled,
-                termuxFullAuth = preferences[TERMUX_FULL_AUTH] == true,
-                termuxUbuntuEnabled = preferences[TERMUX_UBUNTU_ENABLED] != false,
                 termuxCommandTimeoutSec = (preferences[TERMUX_COMMAND_TIMEOUT_SEC]
                     ?: termuxIntegrationSettings.defaultCommandTimeoutSeconds).coerceIn(5, 600),
                 termuxToolTimeoutMin = (preferences[TERMUX_TOOL_TIMEOUT_MIN]
@@ -1076,8 +1072,6 @@ class SettingsStore(
                 preferences[CONNECTOR_LINK_SETTINGS] = JsonInstant.encodeToString(finalSettingsToSave.connectorLinkSettings)
                 preferences[TERMUX_INTEGRATION_SETTINGS] = JsonInstant.encodeToString(finalSettingsToSave.termuxIntegrationSettings.normalized())
                 preferences[TERMUX_ENABLED] = finalSettingsToSave.termuxEnabled
-                preferences[TERMUX_FULL_AUTH] = finalSettingsToSave.termuxFullAuth
-                preferences[TERMUX_UBUNTU_ENABLED] = finalSettingsToSave.termuxUbuntuEnabled
                 preferences[TERMUX_COMMAND_TIMEOUT_SEC] = finalSettingsToSave.termuxCommandTimeoutSec.coerceIn(5, 600)
                 preferences[TERMUX_TOOL_TIMEOUT_MIN] = finalSettingsToSave.termuxToolTimeoutMin.coerceIn(1, 60)
 
@@ -1389,8 +1383,6 @@ data class Settings(
     // Connectors
     val githubPat: String = "",
     val termuxEnabled: Boolean = false,
-    val termuxFullAuth: Boolean = false,
-    val termuxUbuntuEnabled: Boolean = true,
     val termuxCommandTimeoutSec: Int = 60,
     val termuxToolTimeoutMin: Int = 5,
     val connectorLinkSettings: ConnectorLinkSettings = ConnectorLinkSettings(),

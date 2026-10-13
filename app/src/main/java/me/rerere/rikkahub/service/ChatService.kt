@@ -2805,8 +2805,7 @@ class ChatService(
                         is AssistantSearchMode.Off -> Unit
                     }
                     addAll(localTools.getTools(
-                        options = assistant.localTools,
-                        assistantId = assistant.id,
+                        assistant = assistant,
                         conversationId = conversation.id
                     ))
                     if (assistant.localTools.contains(LocalToolOption.MemorySearch)) {
@@ -3363,8 +3362,7 @@ class ChatService(
                 addAll(seatWorkspaceToolSet.tools)
                 addAll(
                     localTools.getTools(
-                        options = seatAssistant.localTools,
-                        assistantId = seatAssistant.id,
+                        assistant = seatAssistant,
                         conversationId = conversation.id,
                     )
                 )

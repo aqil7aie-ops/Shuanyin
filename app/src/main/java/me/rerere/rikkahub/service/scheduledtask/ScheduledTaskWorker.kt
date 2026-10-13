@@ -502,7 +502,7 @@ class ScheduledTaskWorker(
                 is AssistantSearchMode.Off -> Unit
             }
 
-            addAll(localTools.getTools(assistantForRun.localTools, assistantForRun.id, conversationId))
+            addAll(localTools.getTools(assistant = assistantForRun, conversationId = conversationId))
             addAll(workspaceTools)
         }
         val executableBaseTools = filterToolsForExecutionMode(

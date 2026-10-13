@@ -22,6 +22,7 @@ import me.rerere.ai.core.InputSchema
 import me.rerere.ai.core.Tool
 import me.rerere.rikkahub.data.db.dao.ScheduledTaskDao
 import me.rerere.rikkahub.data.files.SkillPaths
+import me.rerere.rikkahub.data.model.Assistant
 import me.rerere.rikkahub.data.model.Skill
 import me.rerere.rikkahub.service.scheduledtask.ScheduledTaskScheduler
 import me.rerere.rikkahub.utils.jsonPrimitiveOrNull
@@ -581,7 +582,9 @@ class LocalTools(
         }.getOrNull()
     }
 
-    fun getTools(options: List<LocalToolOption>, assistantId: Uuid, conversationId: Uuid): List<Tool> {
+    fun getTools(assistant: Assistant, conversationId: Uuid): List<Tool> {
+        val options = assistant.localTools
+        val assistantId = assistant.id
         val tools = mutableListOf<Tool>()
         if (options.contains(LocalToolOption.JavascriptEngine)) {
             tools.add(javascriptTool)
@@ -633,8 +636,12 @@ class LocalTools(
             tools.addAll(
                 createTermuxTools(
                     context = context,
-                    fullAuth = termuxSettings.termuxFullAuth,
-                    ubuntuEnabled = termuxSettings.termuxUbuntuEnabled,
+                    fullAuth = shouldRunTermuxWithoutApproval(
+                        integrationEnabled = termuxSettings.termuxEnabled,
+                        assistantConnectorEnabled = options.contains(LocalToolOption.TermuxConnector),
+                        fullAuth = assistant.termuxFullAuth,
+                    ),
+                    ubuntuEnabled = assistant.termuxUbuntuEnabled,
                     defaultTimeoutSec = termuxSettings.termuxCommandTimeoutSec,
                 )
             )

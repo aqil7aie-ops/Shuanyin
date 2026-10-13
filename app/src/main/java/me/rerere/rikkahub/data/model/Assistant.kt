@@ -156,6 +156,10 @@ data class Assistant(
 
     // Per-assistant UI customization (null = use global setting)
     val uiSettings: AssistantUISettings = AssistantUISettings(),
+    /** Run this assistant's Termux tools without per-command approval when global and assistant switches are enabled. */
+    val termuxFullAuth: Boolean = false,
+    /** Allow this assistant to use the Ubuntu proot-distro tools in Termux. */
+    val termuxUbuntuEnabled: Boolean = true,
 )
 
 @Serializable

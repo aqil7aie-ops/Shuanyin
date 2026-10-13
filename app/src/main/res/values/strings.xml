@@ -2857,7 +2857,7 @@
     <string name="v2_storage_permission_grant">Grant all-files access</string>
     <string name="v2_termux_page_title">Termux integration</string>
     <string name="v2_termux_enabled_title">Enable Termux tools</string>
-    <string name="v2_termux_enabled_description">Enable Termux here, then turn on the Termux connector in each assistant’s Tools settings. Each command still requires approval.</string>
+    <string name="v2_termux_enabled_description">Enable Termux here, then turn on the Termux connector in each assistant’s Tools settings. Full authorization and Ubuntu access are configured per assistant.</string>
     <string name="v2_termux_installed">Termux is installed.</string>
     <string name="v2_termux_not_installed">Termux is not installed. Install it separately to use this integration.</string>
     <string name="v2_termux_permission_granted">Android RUN_COMMAND permission granted to this app.</string>
@@ -2879,7 +2879,7 @@
     <string name="v2_termux_call_timeout">Tool call timeout (minutes)</string>
     <string name="v2_termux_max_output_lines">Maximum output lines</string>
     <string name="v2_termux_max_output_bytes">Maximum output bytes</string>
-    <string name="v2_termux_approval_note">Every command started by an assistant requires your approval.</string>
+    <string name="v2_termux_approval_note">Termux commands require approval unless full authorization is enabled for that assistant.</string>
     <string name="v2_drawer_tab_chats">Chats</string>
     <string name="v2_drawer_tab_new">New</string>
     <string name="v2_drawer_new_chat_description">Start a new conversation with the selected assistant.</string>
@@ -2900,4 +2900,8 @@
     <string name="v2_connector_test_unlinked">OAuth is not enabled; this connector remains not linked.</string>
     <string name="assistant_page_local_tools_termux_connector_desc">Let the assistant run commands in Termux and Ubuntu (proot-distro): one-shot commands and persistent sessions. Needs Termux with allow-external-apps enabled.</string>
     <string name="assistant_page_local_tools_termux_connector_title">Termux Connector</string>
+    <string name="assistant_page_local_tools_termux_full_auth_title">Full authorization</string>
+    <string name="assistant_page_local_tools_termux_full_auth_desc">Run this assistant’s Termux commands directly without per-command approval. Requires the global Termux switch and this assistant’s Termux connector.</string>
+    <string name="assistant_page_local_tools_termux_ubuntu_title">Ubuntu</string>
+    <string name="assistant_page_local_tools_termux_ubuntu_desc">Allow this assistant to run commands in Ubuntu (proot-distro) via Termux.</string>
 </resources>

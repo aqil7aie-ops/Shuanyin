@@ -2847,7 +2847,7 @@
     <string name="v2_storage_permission_grant">授予所有檔案存取權</string>
     <string name="v2_termux_page_title">Termux 整合</string>
     <string name="v2_termux_enabled_title">啟用 Termux 工具</string>
-    <string name="v2_termux_enabled_description">先在此啟用 Termux，再到每個助理的「工具」設定開啟 Termux 連接器。每條命令仍需核准。</string>
+    <string name="v2_termux_enabled_description">先在此啟用 Termux，再到每個助理的「工具」設定開啟 Termux 連接器。完整授權與 Ubuntu 存取權可依助理個別設定。</string>
     <string name="v2_termux_installed">已安裝 Termux。</string>
     <string name="v2_termux_not_installed">未安裝 Termux。請另行安裝後再使用。</string>
     <string name="v2_termux_permission_granted">已授予此應用程式 Android RUN_COMMAND 權限。</string>
@@ -2869,7 +2869,7 @@
     <string name="v2_termux_call_timeout">工具呼叫逾時（分鐘）</string>
     <string name="v2_termux_max_output_lines">最大輸出行數</string>
     <string name="v2_termux_max_output_bytes">最大輸出位元組數</string>
-    <string name="v2_termux_approval_note">助理啟動的每條命令都需要你的核准。</string>
+    <string name="v2_termux_approval_note">除非為該助理啟用「完整授權」，否則 Termux 命令需要逐條核准。</string>
     <string name="v2_drawer_tab_chats">對話</string>
     <string name="v2_drawer_tab_new">新增</string>
     <string name="v2_drawer_new_chat_description">與目前選取的助理開始新對話。</string>
@@ -2890,4 +2890,8 @@
     <string name="v2_connector_test_unlinked">OAuth 未啟用；此連接器仍保持未連結。</string>
     <string name="assistant_page_local_tools_termux_connector_desc">允許助手在 Termux 和 Ubuntu（proot-distro）中執行命令：單次命令與持久會話。需要在 Termux 中啟用 allow-external-apps。</string>
     <string name="assistant_page_local_tools_termux_connector_title">Termux 連接器</string>
+    <string name="assistant_page_local_tools_termux_full_auth_title">完整授權</string>
+    <string name="assistant_page_local_tools_termux_full_auth_desc">允許此助理直接執行 Termux 命令，無需逐條核准。需要同時啟用全域 Termux 開關和此助理的 Termux 連接器。</string>
+    <string name="assistant_page_local_tools_termux_ubuntu_title">Ubuntu</string>
+    <string name="assistant_page_local_tools_termux_ubuntu_desc">允許此助理透過 Termux 在 Ubuntu（proot-distro）中執行命令。</string>
 </resources>
